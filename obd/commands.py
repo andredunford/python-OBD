@@ -124,7 +124,7 @@ __mode1__ = [
     OBDCommand("ABSOLUTE_LOAD"              , "Absolute load value"                     , b"0143", 4, absolute_load,         ECU.ENGINE, True),
     OBDCommand("COMMANDED_EQUIV_RATIO"      , "Commanded equivalence ratio"             , b"0144", 4, uas(0x1E),             ECU.ENGINE, True),
     OBDCommand("RELATIVE_THROTTLE_POS"      , "Relative throttle position"              , b"0145", 3, percent,               ECU.ENGINE, True),
-    OBDCommand("AMBIANT_AIR_TEMP"           , "Ambient air temperature"                 , b"0146", 3, temp,                  ECU.ENGINE, True),
+    OBDCommand("AMBIENT_AIR_TEMP"           , "Ambient air temperature"                 , b"0146", 3, temp,                  ECU.ENGINE, True),
     OBDCommand("THROTTLE_POS_B"             , "Absolute throttle position B"            , b"0147", 3, percent,               ECU.ENGINE, True),
     OBDCommand("THROTTLE_POS_C"             , "Absolute throttle position C"            , b"0148", 3, percent,               ECU.ENGINE, True),
     OBDCommand("ACCELERATOR_POS_D"          , "Accelerator pedal position D"            , b"0149", 3, percent,               ECU.ENGINE, True),
