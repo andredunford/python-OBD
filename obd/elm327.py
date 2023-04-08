@@ -106,7 +106,7 @@ class ELM327:
     _TRY_BAUDS = [38400, 9600, 230400, 115200, 57600, 19200]
 
     def __init__(self, portname, baudrate, protocol, timeout,
-                 check_voltage=True, start_low_power=False):
+                 check_voltage=True, start_low_power=False, delay=0.10):
         """Initializes port by resetting device and gettings supported PIDs. """
 
         logger.info("Initializing ELM327: PORT=%s BAUD=%s PROTOCOL=%s" %
@@ -121,6 +121,8 @@ class ELM327:
         self.__protocol = UnknownProtocol([])
         self.__low_power = False
         self.timeout = timeout
+
+        self.delay = delay
 
         # ------------- open port -------------
         try:
@@ -156,19 +158,19 @@ class ELM327:
             return
 
         # -------------------------- ATE0 (echo OFF) --------------------------
-        r = self.__send(b"ATE0")
+        r = self.__send(b"ATE0", delay=self.delay)
         if not self.__isok(r, expectEcho=True):
             self.__error("ATE0 did not return 'OK'")
             return
 
         # ------------------------- ATH1 (headers ON) -------------------------
-        r = self.__send(b"ATH1")
+        r = self.__send(b"ATH1", delay=self.delay)
         if not self.__isok(r):
             self.__error("ATH1 did not return 'OK', or echoing is still ON")
             return
 
         # ------------------------ ATL0 (linefeeds OFF) -----------------------
-        r = self.__send(b"ATL0")
+        r = self.__send(b"ATL0", delay=self.delay)
         if not self.__isok(r):
             self.__error("ATL0 did not return 'OK'")
             return
@@ -178,7 +180,7 @@ class ELM327:
 
         # -------------------------- AT RV (read volt) ------------------------
         if check_voltage:
-            r = self.__send(b"AT RV")
+            r = self.__send(b"AT RV", delay=self.delay)
             if not r or len(r) != 1 or r[0] == '':
                 self.__error("No answer from 'AT RV'")
                 return
@@ -222,7 +224,7 @@ class ELM327:
             return self.auto_protocol()
 
     def manual_protocol(self, protocol_):
-        r = self.__send(b"ATTP" + protocol_.encode())
+        r = self.__send(b"ATTP" + protocol_.encode(), delay=self.delay)
         r0100 = self.__send(b"0100")
 
         if not self.__has_message(r0100, "UNABLE TO CONNECT"):
@@ -252,7 +254,7 @@ class ELM327:
             return False
 
         # ------------------- ATDPN (list protocol number) -------------------
-        r = self.__send(b"ATDPN")
+        r = self.__send(b"ATDPN", delay=self.delay)
         if len(r) != 1:
             logger.error("Failed to retrieve current protocol")
             return False
@@ -273,7 +275,7 @@ class ELM327:
             logger.debug("ELM responded with unknown protocol. Trying them one-by-one")
 
             for p in self._TRY_PROTOCOL_ORDER:
-                r = self.__send(b"ATTP" + p.encode())
+                r = self.__send(b"ATTP" + p.encode(), delay=self.delay)
                 r0100 = self.__send(b"0100")
                 if not self.__has_message(r0100, "UNABLE TO CONNECT"):
                     # success, found the protocol
